@@ -13,7 +13,6 @@ class Ball {
 		this.radius = 20
 		this.xSpeed = Math.random() * 5 + 2
 		this.ySpeed = Math.random() * 5 + 2
-		// this.ySpeed = 0
 		this.speedInterval = Math.random() * 1
 	}
 
@@ -146,6 +145,8 @@ class LeftPad {
 class LeftGun {
 	constructor() {
 		this.function = true
+		this.bullets = 0
+		this.bulletsLimit = 20
 		this.x = 70
 		this.y = leftPad.y + leftPad.height / 2
 		this.width = 50
@@ -175,16 +176,24 @@ class LeftGun {
 		ctx.clearRect(this.x + 1, this.y - 1, this.width + 1, this.height + 5)
 	}
 
+	clearBulletsRemaining = () => {
+		ctx.clearRect(80, window.innerHeight - 130, 400, 50)
+	}
+
 	keysDownHandler = (event) => {
-		if (event.code === 'ShiftLeft' && this.function === true) {
+		if (event.code === 'ShiftLeft' && this.function === true && this.bullets <= this.bulletsLimit) {
 			const bullet = new Bullet(
 				false,
+				0.5,
 				10,
 				this.x + this.width,
 				this.y + this.height / 3,
 				10,
 				10
 			)
+			console.log(this.bullets)
+			this.clearBulletsRemaining()
+			this.bullets += 1
 			bullet.drawRect()
 			bullet.update()
 		}
@@ -193,6 +202,8 @@ class LeftGun {
 	update = () => {
 		requestAnimationFrame(() => {
 			this.clearRect()
+			ctx.font = '30px Arial'
+			ctx.fillText(`${this.bulletsLimit - this.bullets}`, 100, window.innerHeight - 100)
 			this.y = leftPad.y + leftPad.height / 2
 			this.drawRect()
 			this.update()
@@ -254,6 +265,8 @@ class RightPad {
 class RightGun {
 	constructor() {
 		this.function = true
+		this.bullets = 0
+		this.bulletsLimit = 20
 		this.x = window.innerWidth - 123
 		this.y = rightPad.y + rightPad.height / 2
 		this.width = 50
@@ -280,8 +293,9 @@ class RightGun {
 	}
 
 	keysDownHandler = (event) => {
-		if (event.code === 'ArrowLeft' && this.function === true) {
-			const bullet = new Bullet(true, -10, this.x - 10, this.y + this.height / 3, 10, 10)
+		if (event.code === 'ArrowLeft' && this.function === true && this.bullets <= this.bulletsLimit) {
+			const bullet = new Bullet(true, 0.5, -10, this.x - 10, this.y + this.height / 3, 10, 10)
+			this.bullets += 1
 			bullet.drawRect()
 			bullet.update()
 		}
@@ -298,7 +312,8 @@ class RightGun {
 }
 
 class Bullet {
-	constructor(rightOrNot, xSpeed, x, y, width, height) {
+	constructor(rightOrNot, strength, xSpeed, x, y, width, height) {
+		this.strength = strength
 		this.x = x
 		this.y = y
 		this.xSpeed = xSpeed
@@ -309,10 +324,8 @@ class Bullet {
 
 	drawRect = () => {
 		if (this.rightOrNot === true) {
-			if (this.x >= ball.x && this.y >= ball.y && this.y <= ball.y + ball.radius * 2) {
-				console.log(ball.xSpeed)
-				ball.xSpeed -= 0.5
-				console.log(ball.xSpeed)
+			if (this.x <= ball.x + ball.radius * 2 && this.y >= ball.y && this.y <= ball.y + ball.radius * 2) {
+				ball.xSpeed -= this.strength
 				this.x = 0
 				this.y = 0
 				this.xSpeed = 0
@@ -321,9 +334,7 @@ class Bullet {
 			}
 		} else if (this.rightOrNot === false) {
 			if (this.x >= ball.x && this.y >= ball.y && this.y <= ball.y + ball.radius * 2) {
-				console.log(ball.xSpeed)
-				ball.xSpeed += 0.5
-				console.log(ball.xSpeed)
+				ball.xSpeed += this.strength
 				this.x = 0
 				this.y = 0
 				this.xSpeed = 0
