@@ -44,6 +44,16 @@ class Ball {
 				this.xSpeed = Math.random() * 5 + 2
 				this.ySpeed = Math.random() * 5 + 2
 				this.speedInterval = Math.random() * 1
+				rightGun.function = true
+				rightGun.x = window.innerWidth - 123
+				rightGun.y = rightPad.y + rightPad.height / 2
+				rightGun.width = 50
+				rightGun.height = 20
+				leftGun.function = true
+				leftGun.x = 70
+				leftGun.y = leftPad.y + leftPad.height / 2
+				leftGun.width = 50
+				leftGun.height = 20
 				rightScore += 1
 				this.clearScore()
 			}
