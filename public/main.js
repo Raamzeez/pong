@@ -6,8 +6,6 @@ c.width = window.innerWidth
 let leftScore = 0
 let rightScore = 0
 
-// const bounceSound = new sound('Pong.mp3')
-
 class Ball {
 	constructor() {
 		this.x = window.innerWidth / 2
@@ -15,6 +13,7 @@ class Ball {
 		this.radius = 20
 		this.xSpeed = Math.random() * 5 + 2
 		this.ySpeed = Math.random() * 5 + 2
+		// this.ySpeed = 0
 		this.speedInterval = Math.random() * 1
 	}
 
@@ -29,7 +28,6 @@ class Ball {
 		if (this.x >= window.innerWidth - 100) {
 			if (this.y >= rightPad.y && this.y <= rightPad.y + rightPad.height) {
 				this.xSpeed = -this.xSpeed - this.speedInterval
-				// bounceSound.play()
 			} else {
 				this.x = window.innerWidth / 2
 				this.y = window.innerHeight / 2
@@ -40,7 +38,6 @@ class Ball {
 		if (this.x <= 100) {
 			if (this.y >= leftPad.y && this.y <= leftPad.y + leftPad.height) {
 				this.xSpeed = -this.xSpeed + this.speedInterval
-				// bounceSound.play()
 			} else {
 				this.x = window.innerWidth / 2
 				this.y = window.innerHeight / 2
@@ -123,13 +120,70 @@ class LeftPad {
 	}
 
 	clearRect = () => {
-		ctx.clearRect(0, 0, 73, c.height)
+		ctx.clearRect(0, 0, 71, c.height)
 	}
 
 	update = () => {
 		requestAnimationFrame(() => {
 			this.clearRect()
 			this.y += this.ySpeed
+			this.drawRect()
+			this.update()
+		})
+	}
+}
+
+class LeftGun {
+	constructor() {
+		this.function = true
+		this.x = 70
+		this.y = leftPad.y + leftPad.height / 2
+		this.width = 50
+		this.height = 20
+	}
+
+	drawRect = () => {
+		if (
+			ball.x <= this.x + this.width &&
+			ball.y >= this.y &&
+			ball.y <= this.y + this.height
+		) {
+			this.x = 0
+			this.y = 0
+			this.width = 0
+			this.height = 0
+			this.function = false
+		}
+		ctx.beginPath()
+		ctx.rect(this.x, this.y, this.width, this.height)
+		ctx.stroke()
+		ctx.fill()
+		ctx.closePath()
+	}
+
+	clearRect = () => {
+		ctx.clearRect(this.x + 1, this.y - 1, this.width + 1, this.height + 5)
+	}
+
+	keysDownHandler = (event) => {
+		if (event.code === 'ShiftLeft' && this.function === true) {
+			const bullet = new Bullet(
+				false,
+				10,
+				this.x + this.width,
+				this.y + this.height / 3,
+				10,
+				10
+			)
+			bullet.drawRect()
+			bullet.update()
+		}
+	}
+
+	update = () => {
+		requestAnimationFrame(() => {
+			this.clearRect()
+			this.y = leftPad.y + leftPad.height / 2
 			this.drawRect()
 			this.update()
 		})
@@ -187,6 +241,105 @@ class RightPad {
 	}
 }
 
+class RightGun {
+	constructor() {
+		this.function = true
+		this.x = window.innerWidth - 123
+		this.y = rightPad.y + rightPad.height / 2
+		this.width = 50
+		this.height = 20
+	}
+
+	drawRect = () => {
+		if (ball.x >= this.x && ball.y >= this.y && ball.y <= this.y + this.height) {
+			this.x = 0
+			this.y = 0
+			this.width = 0
+			this.height = 0
+			this.function = false
+		}
+		ctx.beginPath()
+		ctx.rect(this.x, this.y, this.width, this.height)
+		ctx.stroke()
+		ctx.fill()
+		ctx.closePath()
+	}
+
+	clearRect = () => {
+		ctx.clearRect(this.x - 1, this.y - 1, this.width + 1, this.height + 5)
+	}
+
+	keysDownHandler = (event) => {
+		if (event.code === 'ArrowLeft' && this.function === true) {
+			const bullet = new Bullet(true, -10, this.x - 10, this.y + this.height / 3, 10, 10)
+			bullet.drawRect()
+			bullet.update()
+		}
+	}
+
+	update = () => {
+		requestAnimationFrame(() => {
+			this.clearRect()
+			this.y = rightPad.y + rightPad.height / 2
+			this.drawRect()
+			this.update()
+		})
+	}
+}
+
+class Bullet {
+	constructor(rightOrNot, xSpeed, x, y, width, height) {
+		this.x = x
+		this.y = y
+		this.xSpeed = xSpeed
+		this.width = width
+		this.height = height
+		this.rightOrNot = rightOrNot
+	}
+
+	drawRect = () => {
+		if (this.rightOrNot === true) {
+			if (this.x >= ball.x && this.y >= ball.y && this.y <= ball.y + ball.radius * 2) {
+				console.log(ball.xSpeed)
+				ball.xSpeed -= 0.5
+				console.log(ball.xSpeed)
+				this.x = 0
+				this.y = 0
+				this.xSpeed = 0
+				this.width = 0
+				this.height = 0
+			}
+		} else if (this.rightOrNot === false) {
+			if (this.x >= ball.x && this.y >= ball.y && this.y <= ball.y + ball.radius * 2) {
+				console.log(ball.xSpeed)
+				ball.xSpeed += 0.5
+				console.log(ball.xSpeed)
+				this.x = 0
+				this.y = 0
+				this.xSpeed = 0
+				this.width = 0
+				this.height = 0
+			}
+		}
+		ctx.rect(this.x, this.y, this.width, this.height)
+		ctx.fillStyle = 'red'
+		ctx.fill()
+	}
+
+	clearRect = () => {
+		ctx.clearRect(this.x, this.y - 1, this.width, this.height + 3)
+	}
+
+	update = () => {
+		requestAnimationFrame(() => {
+			this.clearRect()
+			this.x += this.xSpeed
+			this.drawRect()
+			this.update()
+		})
+	}
+}
+
 const rightPad = new RightPad()
 rightPad.drawRect()
 rightPad.update()
@@ -205,7 +358,19 @@ const ball = new Ball()
 ball.drawCircle()
 ball.update()
 
-document.addEventListener('resie', () => {
+const rightGun = new RightGun()
+rightGun.drawRect()
+rightGun.update()
+
+document.addEventListener('keydown', rightGun.keysDownHandler, false)
+
+const leftGun = new LeftGun()
+leftGun.drawRect()
+leftGun.update()
+
+document.addEventListener('keydown', leftGun.keysDownHandler, false)
+
+document.addEventListener('resize', () => {
 	c.height = window.innerHeight
 	c.width = window.innerWidth
 })

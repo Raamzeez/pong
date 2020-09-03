@@ -1,15 +1,20 @@
 const express = require('express')
 const app = express()
 const path = require('path')
+const PORT = 3000
+const server = app.listen(PORT, () => console.log('Listening on Port: ' + PORT))
+const io = require('socket.io').listen(server)
 
 app.use(express.static(__dirname + '/public'))
-
-const PORT = 3000
 
 app.get('/', async (req, res) => {
     res.sendFile(path.join(__dirname, '/index.html'))
 })
 
-app.listen(PORT, () => {
-    console.log('Listening on Port: ' + PORT)
+let users = 0
+
+io.on('connection', socket => {
+    console.log('A user has connected')
+    users += 1
+    socket.emit('users', users)
 })
