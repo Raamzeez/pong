@@ -11,6 +11,10 @@ app.get('/', async (req, res) => {
     res.sendFile(path.join(__dirname, '/index.html'))
 })
 
+app.get('/settings', async (req, res) => {
+    res.sendFile(path.join(__dirname, '/settings.html'))
+})
+
 let users = 0
 
 io.on('connection', socket => {

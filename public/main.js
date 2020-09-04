@@ -6,6 +6,9 @@ c.width = window.innerWidth
 let leftScore = 0
 let rightScore = 0
 
+let moreBulletsImage = new Image()
+moreBulletsImage.src = 'Bullets.png'
+
 class Ball {
 	constructor() {
 		this.x = window.innerWidth / 2
@@ -146,11 +149,12 @@ class LeftGun {
 	constructor() {
 		this.function = true
 		this.bullets = 0
-		this.bulletsLimit = 20
+		this.bulletsLimit = 50
 		this.x = 70
 		this.y = leftPad.y + leftPad.height / 2
 		this.width = 50
 		this.height = 20
+		this.destroyed = false
 	}
 
 	drawRect = () => {
@@ -164,6 +168,7 @@ class LeftGun {
 			this.width = 0
 			this.height = 0
 			this.function = false
+			this.destroyed = true
 		}
 		ctx.beginPath()
 		ctx.rect(this.x, this.y, this.width, this.height)
@@ -181,7 +186,11 @@ class LeftGun {
 	}
 
 	keysDownHandler = (event) => {
-		if (event.code === 'ShiftLeft' && this.function === true && this.bullets <= this.bulletsLimit) {
+		if (
+			event.code === 'ShiftLeft' &&
+			this.function === true &&
+			this.bullets <= this.bulletsLimit
+		) {
 			const bullet = new Bullet(
 				false,
 				0.5,
@@ -204,7 +213,9 @@ class LeftGun {
 			this.clearRect()
 			ctx.font = '30px Arial'
 			ctx.fillText(`${this.bulletsLimit - this.bullets}`, 100, window.innerHeight - 100)
-			this.y = leftPad.y + leftPad.height / 2
+			this.destroyed
+				? ctx.fillText('CANNON DESTROYED', 80, window.innerHeight - 30)
+				: (this.y = leftPad.y + leftPad.height / 2)
 			this.drawRect()
 			this.update()
 		})
@@ -266,11 +277,12 @@ class RightGun {
 	constructor() {
 		this.function = true
 		this.bullets = 0
-		this.bulletsLimit = 20
+		this.bulletsLimit = 50
 		this.x = window.innerWidth - 123
 		this.y = rightPad.y + rightPad.height / 2
 		this.width = 50
 		this.height = 20
+		this.destroyed = false
 	}
 
 	drawRect = () => {
@@ -280,6 +292,7 @@ class RightGun {
 			this.width = 0
 			this.height = 0
 			this.function = false
+			this.destroyed = true
 		}
 		ctx.beginPath()
 		ctx.rect(this.x, this.y, this.width, this.height)
@@ -293,18 +306,49 @@ class RightGun {
 	}
 
 	keysDownHandler = (event) => {
-		if (event.code === 'ArrowLeft' && this.function === true && this.bullets <= this.bulletsLimit) {
-			const bullet = new Bullet(true, 0.5, -10, this.x - 10, this.y + this.height / 3, 10, 10)
+		if (
+			event.code === 'ArrowLeft' &&
+			this.function === true &&
+			this.bullets <= this.bulletsLimit
+		) {
+			const bullet = new Bullet(
+				true,
+				0.5,
+				-10,
+				this.x - 10,
+				this.y + this.height / 3,
+				10,
+				10
+			)
 			this.bullets += 1
+			this.clearBulletsRemaining()
 			bullet.drawRect()
 			bullet.update()
 		}
 	}
 
+	clearBulletsRemaining = () => {
+		// ctx.rect((window.innerWidth - 100), (window.innerHeight - 150), 50, 70)
+		// ctx.fill()
+		ctx.clearRect(window.innerWidth - 100, window.innerHeight - 150, 50, 70)
+	}
+
 	update = () => {
 		requestAnimationFrame(() => {
 			this.clearRect()
-			this.y = rightPad.y + rightPad.height / 2
+			ctx.font = '30px Arial'
+			ctx.fillText(
+				`${this.bulletsLimit - this.bullets}`,
+				window.innerWidth - 100,
+				window.innerHeight - 100
+			)
+			this.destroyed
+				? ctx.fillText(
+						'CANNON DESTROYED',
+						window.innerWidth - 400,
+						window.innerHeight - 30
+				  )
+				: (this.y = rightPad.y + rightPad.height / 2)
 			this.drawRect()
 			this.update()
 		})
@@ -324,7 +368,11 @@ class Bullet {
 
 	drawRect = () => {
 		if (this.rightOrNot === true) {
-			if (this.x <= ball.x + ball.radius * 2 && this.y >= ball.y && this.y <= ball.y + ball.radius * 2) {
+			if (
+				this.x <= ball.x + ball.radius * 2 &&
+				this.y >= ball.y &&
+				this.y <= ball.y + ball.radius * 2
+			) {
 				ball.xSpeed -= this.strength
 				this.x = 0
 				this.y = 0
@@ -361,6 +409,32 @@ class Bullet {
 	}
 }
 
+class MoreBulletsItem {
+	constructor() {
+		this.x = Math.floor(Math.random() * 700) + 200
+		this.y = Math.floor(Math.random() * 400) + 100 
+		this.width = 50
+		this.height = 50
+		this.img = moreBulletsImage
+	}
+
+	drawImage = () => {
+		ctx.drawImage(this.img, this.x, this.y, this.width, this.height)
+	}
+
+	clearImage = () => {
+		ctx.clearRect(this.x, this.y, this.width, this.height)
+	}
+
+	update = () => {
+		requestAnimationFrame(() => {
+			this.clearRect()
+			this.drawImage()
+			this.update()
+		})
+	}
+}
+
 const rightPad = new RightPad()
 rightPad.drawRect()
 rightPad.update()
@@ -390,6 +464,16 @@ leftGun.drawRect()
 leftGun.update()
 
 document.addEventListener('keydown', leftGun.keysDownHandler, false)
+
+moreBulletsImage.addEventListener(
+	'load',
+	() => {
+		const itemUno = new MoreBulletsItem()
+		itemUno.drawImage()
+		itemUno.update()
+	},
+	false
+)
 
 document.addEventListener('resize', () => {
 	c.height = window.innerHeight
