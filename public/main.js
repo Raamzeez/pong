@@ -9,6 +9,9 @@ let rightScore = 0
 let moreBulletsImage = new Image()
 moreBulletsImage.src = 'Bullets.png'
 
+let installCannonImage = new Image()
+installCannonImage.src = 'Cannon.png'
+
 class Ball {
 	constructor() {
 		this.x = window.innerWidth / 2
@@ -409,17 +412,17 @@ class Bullet {
 	}
 }
 
-class MoreBulletsItem {
-	constructor() {
-		this.x = Math.floor(Math.random() * 700) + 200
-		this.y = Math.floor(Math.random() * 400) + 100 
-		this.width = 50
-		this.height = 50
-		this.img = moreBulletsImage
+class Item {
+	constructor({ imageSource, x, y, width, height }) {
+		x ? (this.x = x) : Math.floor(Math.random() * 700) + 200
+		y ? (this.y = y) : Math.floor(Math.random() * 400) + 100
+		width ? (this.width = width) : 50
+		height ? (this.height = height) : 50
+		this.image = imageSource
 	}
 
 	drawImage = () => {
-		ctx.drawImage(this.img, this.x, this.y, this.width, this.height)
+		ctx.drawImage(this.image, this.x, this.y, this.width, this.height)
 	}
 
 	clearImage = () => {
@@ -428,7 +431,7 @@ class MoreBulletsItem {
 
 	update = () => {
 		requestAnimationFrame(() => {
-			this.clearRect()
+			this.clearImage()
 			this.drawImage()
 			this.update()
 		})
@@ -465,15 +468,22 @@ leftGun.update()
 
 document.addEventListener('keydown', leftGun.keysDownHandler, false)
 
-moreBulletsImage.addEventListener(
-	'load',
-	() => {
-		const itemUno = new MoreBulletsItem()
-		itemUno.drawImage()
-		itemUno.update()
-	},
-	false
-)
+moreBulletsImage.addEventListener('load', () => {
+	setTimeout(() => {
+		const moreBulletsItem = new Item({ imageSource: moreBulletsImage })
+		moreBulletsItem.drawImage()
+		moreBulletsItem.update()
+	}, 0)
+	setTimeout(() => {
+		const installCannon = new Item({
+			imageSource: installCannonImage,
+			height: 100,
+			width: 100,
+		})
+		installCannon.drawImage()
+		installCannon.update()
+	}, 0)
+})
 
 document.addEventListener('resize', () => {
 	c.height = window.innerHeight
