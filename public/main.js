@@ -14,6 +14,7 @@ installCannonImage.src = 'Cannon.png'
 
 class Ball {
 	constructor() {
+		this.lastHitPad = null
 		this.x = window.innerWidth / 2
 		this.y = window.innerHeight / 2
 		this.radius = 20
@@ -33,6 +34,7 @@ class Ball {
 		if (this.x >= window.innerWidth - 100) {
 			if (this.y >= rightPad.y && this.y <= rightPad.y + rightPad.height) {
 				this.xSpeed = -this.xSpeed - this.speedInterval
+				this.lastHitPad = 'right'
 			} else {
 				this.x = window.innerWidth / 2
 				this.y = window.innerHeight / 2
@@ -43,6 +45,7 @@ class Ball {
 		if (this.x <= 100) {
 			if (this.y >= leftPad.y && this.y <= leftPad.y + leftPad.height) {
 				this.xSpeed = -this.xSpeed + this.speedInterval
+				this.lastHitPad = 'left'
 			} else {
 				this.x = window.innerWidth / 2
 				this.y = window.innerHeight / 2
@@ -414,10 +417,10 @@ class Bullet {
 
 class Item {
 	constructor({ imageSource, x, y, width, height }) {
-		x ? (this.x = x) : Math.floor(Math.random() * 700) + 200
-		y ? (this.y = y) : Math.floor(Math.random() * 400) + 100
-		width ? (this.width = width) : 50
-		height ? (this.height = height) : 50
+		x ? (this.x = x) : this.x = Math.floor(Math.random() * 700) + 200
+		y ? (this.y = y) : this.y = Math.floor(Math.random() * 400) + 100
+		width ? (this.width = width) : this.width = 50
+		height ? (this.height = height) : this.height = 50
 		this.image = imageSource
 	}
 
@@ -473,6 +476,7 @@ moreBulletsImage.addEventListener('load', () => {
 		const moreBulletsItem = new Item({ imageSource: moreBulletsImage })
 		moreBulletsItem.drawImage()
 		moreBulletsItem.update()
+		console.log(moreBulletsItem.x, moreBulletsItem.y, moreBulletsItem.width, moreBulletsItem.height, moreBulletsItem.image)
 	}, 0)
 	setTimeout(() => {
 		const installCannon = new Item({
