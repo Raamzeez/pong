@@ -12,6 +12,49 @@ moreBulletsImage.src = 'Bullets.png'
 let installCannonImage = new Image()
 installCannonImage.src = 'Cannon.png'
 
+class Item {
+	constructor({ imageSource, x, y, width, height }) {
+		x ? (this.x = x) : (this.x = Math.floor(Math.random() * 700) + 200)
+		y ? (this.y = y) : (this.y = Math.floor(Math.random() * 400) + 100)
+		width ? (this.width = width) : (this.width = 50)
+		height ? (this.height = height) : (this.height = 50)
+		this.image = imageSource
+	}
+
+	drawImage = () => {
+		ctx.drawImage(this.image, this.x, this.y, this.width, this.height)
+	}
+
+	clearImage = () => {
+		ctx.clearRect(this.x, this.y, this.width, this.height)
+	}
+
+	update = () => {
+		requestAnimationFrame(() => {
+			this.clearImage()
+			this.drawImage()
+			this.update()
+		})
+	}
+}
+
+// moreBulletsImage.addEventListener('load', () => {
+// 	setTimeout(() => {
+const moreBulletsItem = new Item({ imageSource: moreBulletsImage })
+moreBulletsItem.drawImage()
+moreBulletsItem.update()
+// }, 0)
+// setTimeout(() => {
+const installCannon = new Item({
+	imageSource: installCannonImage,
+	height: 100,
+	width: 100,
+})
+installCannon.drawImage()
+installCannon.update()
+// 	}, 0)
+// })
+
 class Ball {
 	constructor() {
 		this.lastHitPad = null
@@ -35,6 +78,7 @@ class Ball {
 			if (this.y >= rightPad.y && this.y <= rightPad.y + rightPad.height) {
 				this.xSpeed = -this.xSpeed - this.speedInterval
 				this.lastHitPad = 'right'
+				console.log('The right pad hit it last')
 			} else {
 				this.x = window.innerWidth / 2
 				this.y = window.innerHeight / 2
@@ -46,6 +90,7 @@ class Ball {
 			if (this.y >= leftPad.y && this.y <= leftPad.y + leftPad.height) {
 				this.xSpeed = -this.xSpeed + this.speedInterval
 				this.lastHitPad = 'left'
+				console.log('The left pad hit it last')
 			} else {
 				this.x = window.innerWidth / 2
 				this.y = window.innerHeight / 2
@@ -65,6 +110,23 @@ class Ball {
 				rightScore += 1
 				this.clearScore()
 			}
+		}
+		if (
+			this.lastHitPad === 'left' &&
+			this.x >= moreBulletsItem.x &&
+			this.y <= moreBulletsItem.y &&
+			this.y >= moreBulletsItem.y + moreBulletsItem.height
+		) {
+			rightGun.bullets += 20
+			console.log('The right gun needs 20 more bullets')
+		} else if (
+			this.lastHitPad === 'right' &&
+			this.x <= moreBulletsItem.x + moreBulletsItem.width &&
+			this.y <= moreBulletsItem.y &&
+			this.y >= moreBulletsItem.y + moreBulletsItem.height
+		) {
+			leftGun.bullets += 20
+			console.log('The left gun needs 20 more bullets')
 		}
 		ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI)
 		ctx.stroke()
@@ -206,7 +268,6 @@ class LeftGun {
 				10,
 				10
 			)
-			console.log(this.bullets)
 			this.clearBulletsRemaining()
 			this.bullets += 1
 			bullet.drawRect()
@@ -415,32 +476,6 @@ class Bullet {
 	}
 }
 
-class Item {
-	constructor({ imageSource, x, y, width, height }) {
-		x ? (this.x = x) : this.x = Math.floor(Math.random() * 700) + 200
-		y ? (this.y = y) : this.y = Math.floor(Math.random() * 400) + 100
-		width ? (this.width = width) : this.width = 50
-		height ? (this.height = height) : this.height = 50
-		this.image = imageSource
-	}
-
-	drawImage = () => {
-		ctx.drawImage(this.image, this.x, this.y, this.width, this.height)
-	}
-
-	clearImage = () => {
-		ctx.clearRect(this.x, this.y, this.width, this.height)
-	}
-
-	update = () => {
-		requestAnimationFrame(() => {
-			this.clearImage()
-			this.drawImage()
-			this.update()
-		})
-	}
-}
-
 const rightPad = new RightPad()
 rightPad.drawRect()
 rightPad.update()
@@ -471,23 +506,9 @@ leftGun.update()
 
 document.addEventListener('keydown', leftGun.keysDownHandler, false)
 
-moreBulletsImage.addEventListener('load', () => {
-	setTimeout(() => {
-		const moreBulletsItem = new Item({ imageSource: moreBulletsImage })
-		moreBulletsItem.drawImage()
-		moreBulletsItem.update()
-		console.log(moreBulletsItem.x, moreBulletsItem.y, moreBulletsItem.width, moreBulletsItem.height, moreBulletsItem.image)
-	}, 0)
-	setTimeout(() => {
-		const installCannon = new Item({
-			imageSource: installCannonImage,
-			height: 100,
-			width: 100,
-		})
-		installCannon.drawImage()
-		installCannon.update()
-	}, 0)
-})
+// ctx.beginPath()
+// ctx.rect(-10, 20, 80, 20)
+// ctx.fill()
 
 document.addEventListener('resize', () => {
 	c.height = window.innerHeight
