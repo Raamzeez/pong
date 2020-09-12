@@ -68,6 +68,69 @@ class Ball {
 
 	drawCircle = () => {
 		ctx.beginPath()
+		ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI)
+		ctx.stroke()
+		ctx.strokeStyle = 'black'
+		ctx.fill()
+		ctx.fillStyle = 'black'
+		ctx.closePath()
+		if (
+			this.lastHitPad === 'left' &&
+			this.x >= moreBulletsItem.x &&
+			this.x <= moreBulletsItem.x + moreBulletsItem.width &&
+			this.y >= moreBulletsItem.y &&
+			this.y <= moreBulletsItem.y + moreBulletsItem.height
+		) {
+			console.log('Adding bullets to the left gun')
+			leftGun.clearBulletsRemaining()
+			leftGun.bullets = 0
+		} else if (
+			this.lastHitPad === 'right' &&
+			this.x <= moreBulletsItem.x + moreBulletsItem.width &&
+			this.x >= moreBulletsItem.x &&
+			this.y >= moreBulletsItem.y &&
+			this.y <= moreBulletsItem.y + moreBulletsItem.height
+		) {
+			console.log('Adding bullets to the right gun')
+			rightGun.clearBulletsRemaining()
+			rightGun.bullets = 0
+		}
+		if (
+			this.lastHitPad === 'left' &&
+			this.x >= installCannon.x &&
+			this.x <= installCannon.x + installCannon.width &&
+			this.y >= installCannon.y &&
+			this.y <= installCannon.y + installCannon.height &&
+			leftGun.function === false &&
+			leftGun.destroyed === true
+		) {
+			console.log('Installing Cannon to Left Gun')
+			leftGun.clearText()
+			leftGun.function = true
+			leftGun.x = 70
+			leftGun.y = leftPad.y + leftPad.height / 2
+			leftGun.width = 50
+			leftGun.height = 20
+			leftGun.destroyed = false
+		} else if (
+			this.lastHitPad === 'right' &&
+			this.x <= installCannon.x + installCannon.width &&
+			this.x >= installCannon.x &&
+			this.y >= installCannon.y &&
+			this.y <= installCannon.y + installCannon.height &&
+			rightGun.function === false &&
+			rightGun.destroyed === true
+		) {
+			console.log('Installing Cannon to the Right Gun')
+			rightGun.clearText()
+			rightGun.function = true
+			rightGun.bulletsLimit = 50
+			rightGun.x = window.innerWidth - 123
+			rightGun.y = rightPad.y + rightPad.height / 2
+			rightGun.width = 50
+			rightGun.height = 20
+			rightGun.destroyed = false
+		}
 		if (this.x >= window.innerWidth - this.radius || this.x <= this.radius) {
 			this.xSpeed = -this.xSpeed
 		}
@@ -82,6 +145,7 @@ class Ball {
 			} else {
 				this.x = window.innerWidth / 2
 				this.y = window.innerHeight / 2
+				ctx.clearRect(0, 0, window.innerWidth, window.innerHeight)
 				leftScore += 1
 				this.clearScore()
 			}
@@ -92,6 +156,7 @@ class Ball {
 				this.lastHitPad = 'left'
 				console.log('The left pad hit it last')
 			} else {
+				ctx.clearRect(0, 0, window.innerWidth, window.innerHeight)
 				this.x = window.innerWidth / 2
 				this.y = window.innerHeight / 2
 				this.xSpeed = Math.random() * 5 + 2
@@ -111,29 +176,6 @@ class Ball {
 				this.clearScore()
 			}
 		}
-		if (
-			this.lastHitPad === 'left' &&
-			this.x >= moreBulletsItem.x &&
-			this.y <= moreBulletsItem.y &&
-			this.y >= moreBulletsItem.y + moreBulletsItem.height
-		) {
-			rightGun.bullets += 20
-			console.log('The right gun needs 20 more bullets')
-		} else if (
-			this.lastHitPad === 'right' &&
-			this.x <= moreBulletsItem.x + moreBulletsItem.width &&
-			this.y <= moreBulletsItem.y &&
-			this.y >= moreBulletsItem.y + moreBulletsItem.height
-		) {
-			leftGun.bullets += 20
-			console.log('The left gun needs 20 more bullets')
-		}
-		ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI)
-		ctx.stroke()
-		ctx.strokeStyle = 'black'
-		ctx.fill()
-		ctx.fillStyle = 'black'
-		ctx.closePath()
 	}
 
 	clearCircle = () => {
@@ -201,6 +243,8 @@ class LeftPad {
 
 	clearRect = () => {
 		ctx.clearRect(0, 0, 71, c.height)
+		// ctx.rect(0, 0, 71, window.innerHeight)
+		// ctx.fill()
 	}
 
 	update = () => {
@@ -249,8 +293,16 @@ class LeftGun {
 		ctx.clearRect(this.x + 1, this.y - 1, this.width + 1, this.height + 5)
 	}
 
+	clearText = () => {
+		// ctx.rect(80, window.innerHeight - 70, 375, 50)
+		// ctx.fill()
+		ctx.clearRect(80, window.innerHeight - 70, 375, 50)
+	}
+
 	clearBulletsRemaining = () => {
-		ctx.clearRect(80, window.innerHeight - 130, 400, 50)
+		// ctx.rect(90, window.innerHeight - 100, 50, 50)
+		// ctx.fill()
+		ctx.clearRect(90, window.innerHeight - 100, 50, 50)
 	}
 
 	keysDownHandler = (event) => {
@@ -279,7 +331,7 @@ class LeftGun {
 		requestAnimationFrame(() => {
 			this.clearRect()
 			ctx.font = '30px Arial'
-			ctx.fillText(`${this.bulletsLimit - this.bullets}`, 100, window.innerHeight - 100)
+			ctx.fillText(`${this.bulletsLimit - this.bullets}`, 100, window.innerHeight - 70)
 			this.destroyed
 				? ctx.fillText('CANNON DESTROYED', 80, window.innerHeight - 30)
 				: (this.y = leftPad.y + leftPad.height / 2)
@@ -395,9 +447,13 @@ class RightGun {
 	}
 
 	clearBulletsRemaining = () => {
-		// ctx.rect((window.innerWidth - 100), (window.innerHeight - 150), 50, 70)
+		// ctx.rect((window.innerWidth - 150), (window.innerHeight - 70 - 30), 50, 70)
 		// ctx.fill()
-		ctx.clearRect(window.innerWidth - 100, window.innerHeight - 150, 50, 70)
+		ctx.clearRect(window.innerWidth - 150, window.innerHeight - 70 - 30, 50, 70)
+	}
+
+	clearText = () => {
+		ctx.clearRect(window.innerWidth - 400, window.innerHeight - 65, 375, 50)
 	}
 
 	update = () => {
@@ -406,8 +462,8 @@ class RightGun {
 			ctx.font = '30px Arial'
 			ctx.fillText(
 				`${this.bulletsLimit - this.bullets}`,
-				window.innerWidth - 100,
-				window.innerHeight - 100
+				window.innerWidth - 150,
+				window.innerHeight - 70
 			)
 			this.destroyed
 				? ctx.fillText(
