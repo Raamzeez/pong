@@ -6,6 +6,8 @@ c.width = window.innerWidth
 let leftScore = 0
 let rightScore = 0
 
+let itemsDisplayed = 0
+
 let moreBulletsImage = new Image()
 moreBulletsImage.src = 'Bullets.png'
 
@@ -54,6 +56,10 @@ installCannon.drawImage()
 installCannon.update()
 // 	}, 0)
 // })
+
+// const itemSpawn = () => {
+// 	if (itemsDisplayed === 0 && )
+// }
 
 class Ball {
 	constructor() {

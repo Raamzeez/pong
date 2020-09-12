@@ -1,0 +1,1 @@
+let scoreNeededToWin = 10
